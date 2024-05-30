@@ -1,0 +1,39 @@
+name: build640-mvsc
+
+on: workflow_dispatch
+
+jobs:
+  GenerateWinStaticBinaries:
+    runs-on: windows-2019
+
+    steps:
+    - name: Download Qt Everywhere
+      uses: actions/checkout@v2
+    - name: Install Python 3.7 version
+      uses: actions/setup-python@v1
+      with:
+        python-version: '3.7'
+        architecture: 'x64'
+    - name: Compile static Qt version
+      run: |
+        # Download Qt6 Everywhere
+        curl 'https://download.qt.io/official_releases/qt/6.7/6.7.1/single/qt-everywhere-src-6.7.1.zip' > qt-everywhere-src-6.7.1.zip
+        # Unzip
+        7z x qt-everywhere-src-6.7.1.zip
+        mkdir qt6_shadow
+        cd qt6_shadow
+        # Setup the compiler
+        cmd.exe /c "call `"C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat`" && set > %temp%\vcvars.txt"
+        Get-Content "$env:temp\vcvars.txt" | Foreach-Object { if ($_ -match "^(.*?)=(.*)$") { Set-Content "env:\$($matches[1])" $matches[2] } }
+        # Configure Qt5
+        ..\qt-everywhere-src-6.7.1\configure.bat -release -static -static-runtime -no-pch -optimize-size -platform win32-msvc -prefix "..\qt6_670_static_64" -no-feature-accessibility -confirm-license
+        cmake --build . --parallel 4
+        cmake --install .
+    - name: Package binaries
+      run: |
+        # Create archive of the pre-built Qt binaries
+        7z a qt6_671_static_64.zip ..\qt6_671_static_64
+    - uses: actions/upload-artifact@v1
+      with:
+        name: qt6_671_static_64
+        path: qt6_671_static_64.zip
