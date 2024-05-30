@@ -1,4 +1,4 @@
-name: build640-mvsc
+name: build671-mvsc
 
 on: workflow_dispatch
 
