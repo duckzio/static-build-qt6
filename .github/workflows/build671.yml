@@ -18,9 +18,22 @@ jobs:
         
     - name: Download Qt source
       run: |
+        # Download qt-everywhere-src-6.7.1.zip
         curl -L -o qt-everywhere-src-6.7.1.zip https://download.qt.io/official_releases/qt/6.7/6.7.1/single/qt-everywhere-src-6.7.1.zip
-        tar -xf qt-everywhere-src-6.7.1.zip
+        # Extract qt-everywhere-src-6.7.1.zip
+        7z x qt-everywhere-src-6.7.1.zip
+        # Move qt-everywhere-src-6.7.1 C:\QtBuild
         move qt-everywhere-src-6.7.1 C:\QtBuild
+
+    - name: Cache Qt build
+      uses: actions/cache@v3
+      with:
+        path: |
+          C:\Qt\6.7.1
+          C:\QtBuild
+        key: ${{ runner.os }}-qt-6.7.1
+        restore-keys: |
+          ${{ runner.os }}-qt
 
     - name: Configure Qt build
       run: |
@@ -35,6 +48,7 @@ jobs:
     - name: Build Qt
       run: |
         cmake --build . --parallel 4
+        # Install
         cmake --install .
         
     - name: Upload Qt artifacts
