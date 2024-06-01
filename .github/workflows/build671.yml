@@ -4,7 +4,7 @@ on: workflow_dispatch
 
 jobs:
   GenerateWinStaticBinaries:
-    runs-on: windows-2019
+    runs-on: windows-2022
 
     steps:
     - name: Download Qt Everywhere
@@ -23,10 +23,10 @@ jobs:
         mkdir qt6_shadow
         cd qt6_shadow
         # Setup the compiler
-        cmd.exe /c "call `"C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat`" && set > %temp%\vcvars.txt"
+        cmd.exe /c "call `"C:\Program Files (x86)\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat`" && set > %temp%\vcvars.txt"
         Get-Content "$env:temp\vcvars.txt" | Foreach-Object { if ($_ -match "^(.*?)=(.*)$") { Set-Content "env:\$($matches[1])" $matches[2] } }
-        # Configure Qt5
-        ..\qt-everywhere-src-6.7.1\configure.bat -release -static -static-runtime -no-pch -optimize-size -platform win32-msvc -prefix "..\qt6_671_static_64" -no-feature-accessibility -confirm-license
+        # Configure Qt6
+        ..\qt-everywhere-src-6.7.1\configure.bat -static -static-runtime -no-pch -optimize-size -platform win32-msvc -prefix "..\qt6_671_static_64" -opensource -confirm-license -release -nomake examples -nomake tests
         cmake --build . --parallel 4
         cmake --install .
     - name: Package binaries
