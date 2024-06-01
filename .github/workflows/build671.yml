@@ -21,7 +21,8 @@ jobs:
         # Download qt-everywhere-src-6.7.1.zip
         curl -L -o qt-everywhere-src-6.7.1.zip https://download.qt.io/official_releases/qt/6.7/6.7.1/single/qt-everywhere-src-6.7.1.zip
         # Extract qt-everywhere-src-6.7.1.zip
-        7z x qt-everywhere-src-6.7.1.zip -oC:\QtBuild
+        7z x qt-everywhere-src-6.7.1.zip
+        move qt-everywhere-src-6.7.1 C:\QtBuild
 
     - name: Cache Qt build
       uses: actions/cache@v3
@@ -35,12 +36,12 @@ jobs:
 
     - name: Configure Qt build
       run: |
-        mkdir C:\Qt\6.7.1
-        cd C:\QtBuild
         # Setup the compiler
         cmd.exe /c "call `"C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat`" && set > %temp%\vcvars.txt"
         Get-Content "$env:temp\vcvars.txt" | Foreach-Object { if ($_ -match "^(.*?)=(.*)$") { Set-Content "env:\$($matches[1])" $matches[2] } }
         # Configure Qt6
+        mkdir C:\Qt\6.7.1
+        cd C:\QtBuild
         .\configure.bat -static -static-runtime -no-pch -optimize-size -platform win32-msvc -prefix "C:\Qt\6.7.1" -opensource -confirm-license -release -nomake examples -nomake tests
         
     - name: Build Qt
