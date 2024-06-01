@@ -22,36 +22,29 @@ jobs:
         curl -L -o qt-everywhere-src-6.7.1.zip https://download.qt.io/official_releases/qt/6.7/6.7.1/single/qt-everywhere-src-6.7.1.zip
         # Extract qt-everywhere-src-6.7.1.zip
         7z x qt-everywhere-src-6.7.1.zip
-        move qt-everywhere-src-6.7.1 C:\QtBuild
 
     - name: Cache Qt build
       uses: actions/cache@v3
       with:
         path: |
-          C:\Qt\6.7.1
-          C:\QtBuild
-        key: ${{ runner.os }}-qt-6.7.1
+          ./qt-everywhere-src-6.7.1
+        key: ${{ runner.os }}-qt-everywhere-src-6.7.1
         restore-keys: |
           ${{ runner.os }}-qt
 
-    - name: Configure Qt build
+    - name: Qt build
       run: |
         # Setup the compiler
         cmd.exe /c "call `"C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat`" && set > %temp%\vcvars.txt"
         Get-Content "$env:temp\vcvars.txt" | Foreach-Object { if ($_ -match "^(.*?)=(.*)$") { Set-Content "env:\$($matches[1])" $matches[2] } }
         # Configure Qt6
-        mkdir C:\Qt\6.7.1
-        cd C:\QtBuild
-        .\configure.bat -static -static-runtime -no-pch -optimize-size -platform win32-msvc -prefix "C:\Qt\6.7.1" -opensource -confirm-license -release -nomake examples -nomake tests
-        
-    - name: Build Qt
-      run: |
+        mkdir qt6_shadow
+        cd qt6_shadow
+        ..\qt-everywhere-src-6.7.1\configure.bat -static -static-runtime -no-pch -optimize-size -platform win32-msvc -prefix "..\qt6_671_static_64" -opensource -confirm-license -release -nomake examples -nomake tests
         cmake --build . --parallel 4
-        # Install
         cmake --install .
         
-    - name: Upload Qt artifacts
-      uses: actions/upload-artifact@v3
+    - uses: actions/upload-artifact@v3
       with:
-        name: qt6_671_64_static
-        path: C:\Qt\6.7.1
+        name: qt6_671_static_64
+        path: qt6_671_static_64
