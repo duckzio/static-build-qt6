@@ -1,0 +1,88 @@
+name: build691-linux
+
+on: workflow_dispatch
+
+jobs:
+  GenerateWinStaticBinaries:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Install Dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y \
+            build-essential \
+            python3 \
+            perl \
+            cmake \
+            ninja-build \
+            libxkbcommon-x11-dev \
+            libgl1-mesa-dev \
+            libxcb1-dev \
+            libx11-dev \
+            libxext-dev \
+            libxfixes-dev \
+            libxi-dev \
+            libxrender-dev \
+            libxcb-keysyms1-dev \
+            libxcb-image0-dev \
+            libxcb-shm0-dev \
+            libxcb-icccm4-dev \
+            libxcb-sync-dev \
+            libxcb-xfixes0-dev \
+            libxcb-shape0-dev \
+            libxcb-randr0-dev \
+            libxcb-render-util0-dev \
+            libxcb-util-dev \
+            libx11-xcb-dev \
+            libxcb-glx0-dev \
+            libfontconfig1-dev \
+            libfreetype6-dev \
+            libssl-dev \
+            zlib1g-dev \
+            libpng-dev \
+            libjpeg-dev
+
+      - name: Download Qt Source
+        run: |
+          curl -LO https://download.qt.io/archive/qt/6.9/6.9.1/single/qt-everywhere-src-6.9.1.tar.xz
+          tar -xf qt-everywhere-src-6.9.1.tar.xz
+
+      - name: Configure Qt (Static Build)
+        working-directory: qt-everywhere-src-6.9.1
+        run: |
+          mkdir build
+          cd build
+          ../configure \
+            -prefix $HOME/qt-static \
+            -static \
+            -release \
+            -opensource \
+            -confirm-license \
+            -nomake tests \
+            -nomake examples \
+            -skip qtwebengine \
+            -no-pch \
+            -platform linux-g++ \
+            -developer-build
+
+      - name: Build Qt
+        working-directory: qt-everywhere-src-6.9.1/build
+        run: |
+          cmake --build . --parallel $(nproc)
+
+      - name: Install Qt
+        working-directory: qt-everywhere-src-6.9.1/build
+        run: |
+          cmake --install .
+
+      - name: Archive Qt Static Build
+        run: |
+          tar -czf qt-static-6.9.1.tar.gz -C $HOME qt-static
+          echo "Build complete."
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: qt-static-6.9.1
+          path: qt-static-6.9.1.tar.gz
