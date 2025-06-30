@@ -12,7 +12,7 @@ jobs:
           sudo apt update
           sudo apt install -y \
             mingw-w64 cmake ninja-build python3 gperf bison flex perl \
-            pkg-config git zip unzip curl build-essential \
+            pkg-config git zip unzip curl build-essential libclang-dev llvm-dev \
 
       - name: Download Qt Source
         run: |
@@ -22,6 +22,7 @@ jobs:
       - name: Configure Qt for Windows (Static)
         working-directory: qt-everywhere-src-6.9.1
         run: |
+          export QT_QPA_PLATFORM=windows
           mkdir build
           cd build
           ../configure \
