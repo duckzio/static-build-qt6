@@ -1,0 +1,66 @@
+name: build691-mingw
+
+on: workflow_dispatch
+
+jobs:
+  Build:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Install Dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y \
+            build-essential \
+            ninja-build \
+            cmake \
+            curl \
+            perl \
+            python3 \
+            g++-mingw-w64-x86-64 \
+            zip \
+            libssl-dev \
+            libz-dev
+
+      - name: Download Qt Source
+        run: |
+          curl -LO https://download.qt.io/archive/qt/6.9/6.9.1/single/qt-everywhere-src-6.9.1.tar.xz
+          tar -xf qt-everywhere-src-6.9.1.tar.xz
+
+      - name: Configure Qt for Windows (Static)
+        working-directory: qt-everywhere-src-6.9.1
+        run: |
+          mkdir build
+          cd build
+          ../configure \
+            -prefix $HOME/qt-win-static \
+            -static \
+            -release \
+            -opensource \
+            -confirm-license \
+            -nomake tests \
+            -nomake examples \
+            -skip qtwebengine \
+            -xplatform win32-g++ \
+            -device-option CROSS_COMPILE=x86_64-w64-mingw32- \
+            -no-pch
+
+      - name: Build Qt
+        working-directory: qt-everywhere-src-6.9.1/build
+        run: |
+          cmake --build . --parallel $(nproc)
+
+      - name: Install Qt
+        working-directory: qt-everywhere-src-6.9.1/build
+        run: |
+          cmake --install .
+
+      - name: Archive Qt Static for Windows
+        run: |
+          zip -r qt-6.9.1-static-windows.zip $HOME/qt-win-static
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: qt-static-windows-6.9.1
+          path: qt-6.9.1-static-windows.zip
