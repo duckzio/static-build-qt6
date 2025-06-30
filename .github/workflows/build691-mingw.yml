@@ -26,13 +26,11 @@ jobs:
           cd build
           ../configure \
             -prefix $HOME/qt-win-static \
-            -xplatform win32-g++ \
             -static \
             -opensource -confirm-license \
             -release \
             -nomake examples -nomake tests \
             -platform linux-g++ \
-            -device-option CROSS_COMPILE=$CROSS_PREFIX- \
             -skip qtwebengine \
             -opengl desktop \
             -xplatform win32-g++ \
