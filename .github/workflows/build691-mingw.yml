@@ -23,6 +23,8 @@ jobs:
             mingw-w64-x86_64-cmake
             mingw-w64-x86_64-ninja
             mingw-w64-x86_64-python
+            mingw-w64-x86_64-clang
+            mingw-w64-x86_64-llvm
             git
             unzip
             tar
@@ -30,8 +32,8 @@ jobs:
 
       - name: Download Qt 6.9.1 Sources
         run: |
-          curl -LO https://download.qt.io/archive/qt/6.9/6.9.1/single/qt-everywhere-src-6.9.1.tar.xz
-          tar -xf qt-everywhere-src-6.9.1.tar.xz
+          curl -LO https://download.qt.io/archive/qt/6.9/6.9.1/single/qt-everywhere-src-6.9.1.zip
+          unzip qt-everywhere-src-6.9.1.zip
 
       - name: Configure Qt (Static MinGW)
         run: |
@@ -46,10 +48,7 @@ jobs:
             -opensource \
             -nomake tests \
             -nomake examples \
-            -skip qtwebengine \
-            -prefix $HOME/qt-win-static \
-            -platform win32-g++ \
-            -opengl dynamic
+            -prefix $HOME/qt-win-static
             
       - name: Build Qt
         working-directory: qt-everywhere-src-6.9.1/build
