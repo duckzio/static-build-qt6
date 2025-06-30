@@ -48,7 +48,8 @@ jobs:
             -opensource \
             -nomake tests \
             -nomake examples \
-            -prefix $HOME/qt-win-static
+            -prefix $HOME/qt-win-static \
+            -DFEATURE_clangcpp=OFF
             
       - name: Build Qt
         working-directory: qt-everywhere-src-6.9.1/build
