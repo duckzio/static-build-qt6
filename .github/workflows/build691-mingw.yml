@@ -11,16 +11,8 @@ jobs:
         run: |
           sudo apt update
           sudo apt install -y \
-            build-essential \
-            ninja-build \
-            cmake \
-            curl \
-            perl \
-            python3 \
-            g++-mingw-w64-x86-64 \
-            zip \
-            libssl-dev \
-            libz-dev
+            mingw-w64 cmake ninja-build python3 gperf bison flex perl \
+            pkg-config git zip unzip curl build-essential \
 
       - name: Download Qt Source
         run: |
@@ -34,15 +26,17 @@ jobs:
           cd build
           ../configure \
             -prefix $HOME/qt-win-static \
-            -static \
-            -release \
-            -opensource \
-            -confirm-license \
-            -nomake tests \
-            -nomake examples \
-            -skip qtwebengine \
             -xplatform win32-g++ \
-            -device-option CROSS_COMPILE=x86_64-w64-mingw32- \
+            -static \
+            -opensource -confirm-license \
+            -release \
+            -nomake examples -nomake tests \
+            -platform linux-g++ \
+            -device-option CROSS_COMPILE=$CROSS_PREFIX- \
+            -skip qtwebengine \
+            -opengl desktop \
+            -xplatform win32-g++ \
+            -device-option CROSS_COMPILE=x86_64-w64-mingw32 \
             -no-pch
 
       - name: Build Qt
