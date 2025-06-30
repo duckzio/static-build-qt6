@@ -4,40 +4,53 @@ on: workflow_dispatch
 
 jobs:
   Build:
-    runs-on: ubuntu-22.04
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: msys2 {0}
 
     steps:
-      - name: Install Dependencies
-        run: |
-          sudo apt update
-          sudo apt install -y \
-            mingw-w64 cmake ninja-build python3 gperf bison flex perl \
-            pkg-config git zip unzip curl build-essential libclang-dev llvm-dev \
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - name: Download Qt Source
+      - name: Install MSYS2
+        uses: msys2/setup-msys2@v2
+        with:
+          update: true
+          install: >-
+            base-devel
+            mingw-w64-x86_64-toolchain
+            mingw-w64-x86_64-cmake
+            mingw-w64-x86_64-ninja
+            mingw-w64-x86_64-python
+            git
+            unzip
+            tar
+            perl
+
+      - name: Download Qt 6.9.1 Sources
         run: |
           curl -LO https://download.qt.io/archive/qt/6.9/6.9.1/single/qt-everywhere-src-6.9.1.tar.xz
           tar -xf qt-everywhere-src-6.9.1.tar.xz
 
-      - name: Configure Qt for Windows (Static)
-        working-directory: qt-everywhere-src-6.9.1
+      - name: Configure Qt (Static MinGW)
         run: |
-          export QT_QPA_PLATFORM=windows
+          cd qt-everywhere-src-6.9.1
           mkdir build
           cd build
           ../configure \
-            -prefix $HOME/qt-win-static \
+            -static-runtime \ 
             -static \
-            -opensource -confirm-license \
             -release \
-            -nomake examples -nomake tests \
-            -platform linux-g++ \
+            -confirm-license \
+            -opensource \
+            -nomake tests \
+            -nomake examples \
             -skip qtwebengine \
-            -opengl dynamic \
-            -xplatform win32-g++ \
-            -device-option CROSS_COMPILE=x86_64-w64-mingw32 \
-            -no-pch
-
+            -prefix $HOME/qt-win-static \
+            -platform win32-g++ \
+            -opengl dynamic
+            
       - name: Build Qt
         working-directory: qt-everywhere-src-6.9.1/build
         run: |
