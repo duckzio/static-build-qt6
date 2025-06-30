@@ -3,7 +3,7 @@ name: build691-linux
 on: workflow_dispatch
 
 jobs:
-  GenerateWinStaticBinaries:
+  Build:
     runs-on: ubuntu-22.04
 
     steps:
