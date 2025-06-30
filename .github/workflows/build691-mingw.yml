@@ -32,7 +32,7 @@ jobs:
             -nomake examples -nomake tests \
             -platform linux-g++ \
             -skip qtwebengine \
-            -opengl desktop \
+            -opengl dynamic \
             -xplatform win32-g++ \
             -device-option CROSS_COMPILE=x86_64-w64-mingw32 \
             -no-pch
